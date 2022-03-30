@@ -217,7 +217,8 @@ dtrack.cleanData=(dt=dtrack.data.all)=>{
             //dtrack.data.weekends2020[i]=dtrack.data.all.filter(d=>d.mmwrweek==wk&d.mmwryear==2020).map(d=>d.weekendingdate)[0]
         })
     })
-    dtrack.data.weekends20201=dtrack.data.weekends2020.concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52)))
+    //dtrack.data.weekends20201=dtrack.data.weekends2020.concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52)))
+    dtrack.data.weekends20201=dtrack.data.weekends2020.concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52.22857))).concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52.22857*2)))
     //debugger
     //yrs=[... new Set(dtrack.data.all.map(d=>d.mmwryear))]
     dtrack.data.years.forEach(yr=>{
@@ -310,7 +311,8 @@ dtrack.plotlyCompareCovid=async(div='plotlyCompareDiv')=>{
         let yOfCovid=stateData.map(d=>d.covid_19_u071_underlying_cause_of_death)
         dtrack.data.weekends2020=dtrack.data.weekends2020.map(d=>new Date(d.setYear(2020))) // making sure its 2020
         //dtrack.data.weekends20201=[]
-        dtrack.data.weekends20201=dtrack.data.weekends2020.concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52)))
+        //dtrack.data.weekends20201=dtrack.data.weekends2020.concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52)))
+        dtrack.data.weekends20201=dtrack.data.weekends2020.concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52.22857))).concat(dtrack.data.weekends2020.map((x,i)=>new Date(x*1+604800000*52.22857*2)))
         // remove trail of zeros
 
         //debugger
@@ -339,7 +341,7 @@ dtrack.plotlyCompareCovid=async(div='plotlyCompareDiv')=>{
             fillcolor: 'rgba(0,100,255,0.2)'
         }
         let traceOfCovidSum={
-            x:dtrack.data.weekends2020,
+            x:dtrack.data.weekends20201.slice(0,n-6),
             y:dtrack.sum(yOfCovid),//(yOfCovid.slice(0,n-3)),
             type: 'scatter',
             mode: 'lines',
@@ -352,8 +354,9 @@ dtrack.plotlyCompareCovid=async(div='plotlyCompareDiv')=>{
             yaxis:'y2'
         }
         let yWithCovid=stateData.map(d=>d.covid_19_u071_multiple_cause_of_death)        
+        let tlength = dtrack.data.weekends20201.filter(d=>d<Date.now())
         let traceWithCovid={
-            x:dtrack.data.weekends2020,
+            x:dtrack.data.weekends20201.slice(0,n-6),
             y:yWithCovid,//.slice(0,n-3),
             type: 'scatter',
             mode: 'lines',
@@ -656,7 +659,7 @@ dtrack.plotlyCompare=async(div='plotlyCompareDiv')=>{
 
     let traceAvg={ // dev2021
         x:dtrack.data.weekends20201,
-        y:valueRange.avg.concat(valueRange.avg).slice(0,trace2020.y.length),
+        y:valueRange.avg.concat(valueRange.avg).concat(valueRange.avg).slice(0,trace2020.y.length),
         type: 'scatter',
         mode: 'lines+markers',
         name: '2015-19<br>average',
@@ -680,7 +683,7 @@ dtrack.plotlyCompare=async(div='plotlyCompareDiv')=>{
       //x: dtrack.data.weekends2020,
       x: dtrack.data.weekends20201,
       //y: valueRange.min,
-      y: valueRange.min.concat(valueRange.min).slice(0,trace2020.y.length),
+      y: valueRange.min.concat(valueRange.min).concat(valueRange.min).slice(0,trace2020.y.length),
       fill: 'toself',
       type: 'scatter',
       mode: 'none',
@@ -689,7 +692,7 @@ dtrack.plotlyCompare=async(div='plotlyCompareDiv')=>{
     }
     var traceMax = { // dev2021
       x: dtrack.data.weekends20201,
-      y: valueRange.max.concat(valueRange.max).slice(0,trace2020.y.length),
+      y: valueRange.max.concat(valueRange.max).concat(valueRange.max).slice(0,trace2020.y.length),
       fill: 'tonexty',
       type: 'scatter',
       mode: 'none',
@@ -833,7 +836,8 @@ dtrack.plotlyCompare=async(div='plotlyCompareDiv')=>{
         delay:delay
     }
     let layout = {
-        title:`<span style="font-size:small">Comparing 2020<sup>+</sup> with 2015-2019 death records in <b style="color:green">${selectState.value}</b> by<br><b style="color:maroon">${titleCause}</b>, latest CDC record: ${dtrack.data.latest.date.toDateString()}</b></span>`,
+        //title:`<span style="font-size:small">Comparing 2020<sup>+</sup> with 2015-2019 death records in <b style="color:green">${selectState.value}</b> by<br><b style="color:maroon">${titleCause}</b>, latest CDC record: ${dtrack.data.latest.date.toDateString()}</b></span>`,
+        title:`<span style="font-size:small">Comparing 2020<sup>+</sup> with 2015-2019 death records in <b style="color:green">${selectState.value}</b> by<br><b style="color:maroon">${titleCause}</b>, latest CDC record: ${dtrack.data.latest.date?dtrack.data.latest.date.toDateString():Date()}</b></span>`,
         hovermode: 'closest',
         height:530,
         xaxis: {
@@ -1034,7 +1038,7 @@ dtrack.plotlyWithCovid=async(div='plotlyWithCovidDiv')=>{
 
     let traceAvg={
         x:dtrack.data.weekends20201.slice(0,dtrack.data.latest.week),
-        y:valueRange.avg.concat(valueRange.avg),
+        y:valueRange.avg.concat(valueRange.avg).concat(valueRange.avg),
         type: 'scatter',
         mode: 'lines',
         name: 'average<sub>2015-9</sub>',
@@ -1055,7 +1059,7 @@ dtrack.plotlyWithCovid=async(div='plotlyWithCovidDiv')=>{
     */
     var traceMin = {
       x: traceAvg.x,
-      y: valueRange.min.concat(valueRange.min),
+      y: valueRange.min.concat(valueRange.min).concat(valueRange.min),
       fill: 'toself',
       type: 'scatter',
       mode: 'none',
@@ -1064,7 +1068,7 @@ dtrack.plotlyWithCovid=async(div='plotlyWithCovidDiv')=>{
     }
     var traceMax = {
       x: traceAvg.x,
-      y: valueRange.max.concat(valueRange.max),
+      y: valueRange.max.concat(valueRange.max).concat(valueRange.max),
       fill: 'tonexty',
       type: 'scatter',
       mode: 'none',
@@ -1152,7 +1156,8 @@ dtrack.plotlyWithCovid=async(div='plotlyWithCovidDiv')=>{
     }
     //debugger
     let layout={
-        title:`<span style="font-size:small">COVID-19 mortality context for <b style="color:green">${selectState.value}</b>, pop. <span style="color:navy">${dtrack.data.covid[selectState.value].Population.toLocaleString()}</span><br>latest CDC record: ${dtrack.data.latest.date.toDateString()}</span>`, // latest record: ${dtrack.data.covid['All States'].dates.slice(-1)[0].toDateString().slice(0,10)}</b>`,
+        //title:`<span style="font-size:small">COVID-19 mortality context for <b style="color:green">${selectState.value}</b>, pop. <span style="color:navy">${dtrack.data.covid[selectState.value].Population.toLocaleString()}</span><br>latest CDC record: ${dtrack.data.latest.date.toDateString()}</span>`, // latest record: ${dtrack.data.covid['All States'].dates.slice(-1)[0].toDateString().slice(0,10)}</b>`,
+        title:`<span style="font-size:small">COVID-19 mortality context for <b style="color:green">${selectState.value}</b>, pop. <span style="color:navy">${dtrack.data.covid[selectState.value].Population.toLocaleString()}</span><br>latest CDC record: ${dtrack.data.latest.date?dtrack.data.latest.date.toDateString():Date()}</span>`, // latest record: ${dtrack.data.covid['All States'].dates.slice(-1)[0].toDateString().slice(0,10)}</b>`,
         height:570,
         hovermode: 'closest',
         xaxis: {
